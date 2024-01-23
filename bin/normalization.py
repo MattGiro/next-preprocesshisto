@@ -15,6 +15,8 @@ def Normalization(inputPath: Path, sampleImagePath: Path) -> None:
     normalizer = norm_Macenko.Normalizer()
     normalizer.fit(target)
 
+    norm_patches={}
+
     # ----- Normalization & Saving Process -----
     for patch in inputPath:
         img = cv2.imread(str(patch))
@@ -24,8 +26,11 @@ def Normalization(inputPath: Path, sampleImagePath: Path) -> None:
         nor_img = normalizer.transform(img)
         nor_img = cv2.cvtColor(nor_img, cv2.COLOR_RGB2BGR)
 
-        # Extracting name for main directory 
-        extracted_text = patch.name[:(str(patch).find('('))]
+        norm_patches[patch] = nor_img
+
+    for patch_name, tile in norm_patches.items():
+         # Extracting name for main directory 
+        extracted_text = patch_name.name[:(str(patch_name).find('('))]
 
         # Main directory 
         outPath = './normalized_patches'
@@ -33,8 +38,8 @@ def Normalization(inputPath: Path, sampleImagePath: Path) -> None:
         os.makedirs(main_directory, exist_ok=True)
 
         # Saving 
-        nor_img = Image.fromarray(nor_img)
-        nor_img.save(os.path.join(main_directory,patch))    
+        tile = Image.fromarray(tile)
+        tile.save(os.path.join(main_directory,patch_name))    
 
 if __name__ == '__main__':
     # Parsing all arguments from the command line
@@ -45,4 +50,4 @@ if __name__ == '__main__':
 
     # Calling the Normalization function with defined parameters
     Normalization(  args.inputPath,
-                    args.sampleImagePath if args.sampleImagePath != None else './bin/normalization_template.jpg')
+                    args.sampleImagePath if args.sampleImagePath != None else '../../../bin/normalization_template.jpg')
